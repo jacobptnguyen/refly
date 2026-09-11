@@ -12,7 +12,7 @@ Fail the Hop, and *that's* your real game over.
 Die, Hop, resume, die again. The cycle repeats for as long as you can keep
 surviving the second chance.
 
-## Screenshots
+**[Play it live](https://jacobptnguyen.github.io/refly/)**
 
 <p align="center">
   <img src="docs/screenshots/flight.png" alt="Main flight mode — threading the gap between pipes" width="45%" />
@@ -80,8 +80,3 @@ README.md
 bugs.md
 DESIGN.md             authoritative design spec
 ```
-
-## Deploying
-
-Static files only — any static host (GitHub Pages, Netlify, S3, etc.) works
-as-is with no build step.

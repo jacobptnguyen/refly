@@ -12,7 +12,11 @@ Fail the Hop, and *that's* your real game over.
 Die, Hop, resume, die again. The cycle repeats for as long as you can keep
 surviving the second chance.
 
-**[Play it live](https://jacobptnguyen.github.io/refly/)**
+<p align="center">
+  <a href="https://jacobptnguyen.github.io/refly/">
+    <img src="https://img.shields.io/badge/▶_Play_it_live-2ea44f?style=for-the-badge" alt="Play it live" />
+  </a>
+</p>
 
 <p align="center">
   <img src="docs/screenshots/flight.png" alt="Main flight mode — threading the gap between pipes" width="45%" />

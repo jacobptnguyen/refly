@@ -23,6 +23,7 @@ function update(dt, action) {
     case GameState.MENU: {
       if (action) {
         game.flight = Flight.createSession();
+        game.secondChanceCount = 0;
         game.state = GameState.FLIGHT_PLAYING;
       }
       break;
@@ -40,7 +41,8 @@ function update(dt, action) {
     case GameState.DEATH_TRANSITION: {
       game.stateTimer += dt;
       if (game.stateTimer >= CONFIG.DEATH_TRANSITION_DURATION) {
-        game.minigame = Minigame.createSession(game.savedFlight.score);
+        game.secondChanceCount += 1;
+        game.minigame = Minigame.createSession(game.savedFlight.score, game.secondChanceCount - 1);
         game.state = GameState.MINIGAME_PLAYING;
       }
       break;

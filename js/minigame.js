@@ -37,10 +37,20 @@ function generateObstacles(hopSpeed) {
   return obstacles;
 }
 
-export function createSession(score) {
+export function createSession(score, secondChanceCount = 0) {
+  const milestoneBonus =
+    secondChanceCount >= CONFIG.HOP_SPEED_SECOND_CHANCE_MILESTONE_ATTEMPT
+      ? CONFIG.HOP_SPEED_SECOND_CHANCE_MILESTONE_BONUS
+      : 0;
   const hopSpeed = Math.min(
     CONFIG.HOP_SPEED_MAX,
-    Math.max(CONFIG.HOP_SPEED_BASE, CONFIG.HOP_SPEED_BASE + score * CONFIG.HOP_SPEED_SCORE_FACTOR)
+    Math.max(
+      CONFIG.HOP_SPEED_BASE,
+      CONFIG.HOP_SPEED_BASE +
+        score * CONFIG.HOP_SPEED_SCORE_FACTOR +
+        secondChanceCount * CONFIG.HOP_SPEED_SECOND_CHANCE_STEP +
+        milestoneBonus
+    )
   );
   return {
     hopSpeed,
@@ -93,7 +103,7 @@ export function update(minigame, dt, action) {
     }
   }
 
-  if (minigame.cleared >= CONFIG.HOP_OBSTACLE_COUNT) {
+  if (minigame.cleared >= CONFIG.HOP_OBSTACLE_COUNT && runner.grounded) {
     return 'win';
   }
   return undefined;

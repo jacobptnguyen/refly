@@ -99,7 +99,11 @@ state as a free extra input.
 ```js
 switch (game.state) {
   case MENU:
-    if (action) { game.flight = Flight.createSession(); game.state = FLIGHT_PLAYING; }
+    if (action) {
+      game.flight = Flight.createSession();
+      game.secondChanceCount = 0;
+      game.state = FLIGHT_PLAYING;
+    }
     break;
   case FLIGHT_PLAYING: {
     const result = Flight.update(game.flight, dt, action);
@@ -112,8 +116,9 @@ switch (game.state) {
   }
   case DEATH_TRANSITION:
     game.stateTimer += dt;
-    if (game.stateTimer >= CONFIG.TRANSITION_DURATION) {
-      game.minigame = Minigame.createSession(game.savedFlight.score);
+    if (game.stateTimer >= CONFIG.DEATH_TRANSITION_DURATION) {
+      game.secondChanceCount += 1;
+      game.minigame = Minigame.createSession(game.savedFlight.score, game.secondChanceCount - 1);
       game.state = MINIGAME_PLAYING;
     }
     break;
@@ -129,7 +134,7 @@ switch (game.state) {
   }
   case RESUME_TRANSITION:
     game.stateTimer += dt;
-    if (game.stateTimer >= CONFIG.TRANSITION_DURATION) {
+    if (game.stateTimer >= CONFIG.RESUME_TRANSITION_DURATION) {
       game.flight = Flight.restore(game.savedFlight);
       game.savedFlight = null;
       game.state = FLIGHT_PLAYING;
@@ -169,11 +174,36 @@ transition states render the frozen last frame plus a short overlay message
   per session with randomized (but bounded, always-clearable) spacing.
 - Runner is fixed at a screen x-position; ground-level rectangular obstacles
   scroll left at `hopSpeed`.
-- `hopSpeed = clamp(BASE + score * SCORE_FACTOR, BASE, MAX)` — a harder
-  flight run (higher score at death) produces a faster, harder Hop.
+- `hopSpeed = clamp(BASE + score * SCORE_FACTOR + secondChanceCount * SECOND_CHANCE_STEP + milestoneBonus, BASE, MAX)`,
+  where `milestoneBonus = secondChanceCount >= SECOND_CHANCE_MILESTONE_ATTEMPT ? SECOND_CHANCE_MILESTONE_BONUS : 0`
+  — a harder flight run (higher score at death) produces a faster, harder
+  Hop, and **each consecutive Hop entry within the same run ramps the speed
+  further still**, with a distinct extra jump ("gap") once the player has
+  reached their `SECOND_CHANCE_MILESTONE_ATTEMPT`'th consecutive Hop, on
+  top of the steady per-attempt ramp. `secondChanceCount` lives on the
+  top-level `game` object (not the flight snapshot): it starts at 0, is
+  incremented by 1 immediately before every `Minigame.createSession` call
+  (so the first Hop of a run uses `secondChanceCount = 0`, the next one
+  after another death uses `1`, and so on), and resets to 0 whenever a
+  fresh run starts from MENU. It is untouched by winning or losing a Hop
+  attempt itself — only by starting a new run.
+- Obstacle spacing is always derived from `hopSpeed` (`minGap = hopSpeed *
+  jumpAirTime * HOP_GAP_SAFETY_MARGIN`, see `generateObstacles`), so gaps
+  widen automatically in lockstep with any speed increase — including the
+  per-second-chance ramp above — keeping every session's obstacles
+  physically clearable no matter how fast `hopSpeed` gets. What actually
+  gets harder as speed rises is the real-time reaction window for each
+  jump's timing, not raw unfairness.
 - AABB collision runner-vs-obstacle → immediate loss. An obstacle's x
   passing the runner's x with no collision → `cleared++`.
-  `cleared >= HOP_OBSTACLE_COUNT` → win.
+  `cleared >= HOP_OBSTACLE_COUNT` **and the runner is grounded** → win. The
+  grounded requirement matters because clearing the final obstacle
+  horizontally typically happens mid-air (the player is still airborne over
+  it); without it the win would fire — and the game would cut to
+  `RESUME_TRANSITION` — before the player visibly lands, robbing the clear
+  of its feedback. The win check simply re-evaluates every frame once
+  `cleared` hits the count, so it fires the instant the runner's next
+  landing occurs.
 
 ## Visual style
 

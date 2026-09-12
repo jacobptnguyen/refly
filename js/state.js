@@ -17,5 +17,6 @@ export function createGame() {
     savedFlight: null, // snapshot captured at death, consumed on resume
     stateTimer: 0, // used by the two timed transition states
     finalScore: 0, // set when a Hop loss ends the run
+    secondChanceCount: 0, // consecutive Hop entries this run; resets at MENU
   };
 }

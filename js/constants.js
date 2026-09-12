@@ -39,7 +39,10 @@ export const CONFIG = {
   HOP_JUMP_IMPULSE: -700,
   HOP_SPEED_BASE: 220,
   HOP_SPEED_SCORE_FACTOR: 4,
-  HOP_SPEED_MAX: 420,
+  HOP_SPEED_SECOND_CHANCE_STEP: 55, // extra hopSpeed per consecutive Hop entry this run
+  HOP_SPEED_SECOND_CHANCE_MILESTONE_ATTEMPT: 5, // secondChanceCount (0-indexed) at which the milestone bonus kicks in
+  HOP_SPEED_SECOND_CHANCE_MILESTONE_BONUS: 120, // one-time flat bonus applied from the milestone attempt onward
+  HOP_SPEED_MAX: 900,
   HOP_OBSTACLE_WIDTH_MIN: 26,
   HOP_OBSTACLE_WIDTH_MAX: 46,
   HOP_OBSTACLE_HEIGHT_MIN: 28,
